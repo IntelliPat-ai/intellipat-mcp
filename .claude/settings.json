@@ -1,0 +1,24 @@
+{
+  "name": "intellipat-mcp",
+  "displayName": "Intellipat Patent Search",
+  "description": "Submit and track patent novelty/invalidity/sanitized searches via the Intellipat MCP API.",
+  "version": "1.0.0",
+  "skills": [
+    "skills/submit-patent-search.md",
+    "skills/check-job-status.md",
+    "skills/review-pending-jobs.md"
+  ],
+  "hooks": {
+    "sessionStart": "hooks/session-start.sh"
+  },
+  "env": {
+    "INTELLIPAT_MCP_URL": {
+      "required": true,
+      "description": "Intellipat MCP Lambda Function URL (e.g. https://xxxx.lambda-url.us-east-2.on.aws/)"
+    },
+    "INTELLIPAT_MCP_API_KEY": {
+      "required": true,
+      "description": "Intellipat API key (begins with ip_). Create one at https://app.intellipat.ai/settings/api-keys"
+    }
+  }
+}
