@@ -2,7 +2,7 @@
   "name": "intellipat-mcp",
   "displayName": "Intellipat Patent Search",
   "description": "Submit and track patent novelty/invalidity/sanitized searches via the Intellipat MCP API.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "skills": [
     "skills/submit-patent-search.md",
     "skills/check-job-status.md",
