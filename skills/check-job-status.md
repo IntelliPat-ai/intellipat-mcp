@@ -62,6 +62,10 @@ curl -s -X POST "$INTELLIPAT_MCP_URL" \
    - `error_message: <structuredContent.error from get_job_status>`
 2. Show the error and suggest opening a support ticket if the cause is non-obvious.
 
+### Status: missing or unrecognised
+
+If `status` is `null`, absent, or none of `pending` / `processing` / `done` / `error` (after lower-casing) — live dev data contains rows with no status and rows written by other tools in other casings — treat it as **`unknown`**: do **not** infer done or error, do not change the stored `status:` in memory (only `last_checked_at`), tell the user "the server reported no usable status for this job", and suggest checking again later or contacting support if it persists.
+
 ### Status: `pending` or `processing`
 
 1. Update only `last_checked_at: <now>` in memory.

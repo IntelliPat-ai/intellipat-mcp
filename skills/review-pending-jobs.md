@@ -72,5 +72,6 @@ For newly transitioned `error` jobs, show the error message instead of a summary
 
 - This skill is read/update only — it never submits new searches.
 - Skip jobs whose `status` was already `done` or `error` in memory; we only refresh active ones to avoid wasteful API calls.
+- A job whose `status` is `null`, absent, or not one of `pending` / `processing` / `done` / `error` (after lower-casing) is shown as `unknown` in the table with a one-line warning; leave its stored `status:` unchanged, update only `last_checked_at`, and keep it in the active list so it is re-checked next time.
 - If a call returns `result.isError` with text `Job … not found` / `not owned by caller` for a job present in memory, mark its status as `unknown` and surface a one-line warning.
 - HTTP 401 means the key is bad: stop the whole review (every call will fail) and say so once. HTTP 404 `Method not found: tools/call` means the server is a pre-protocol deployment: stop and say so once.
