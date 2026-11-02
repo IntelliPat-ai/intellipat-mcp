@@ -2,7 +2,7 @@
 
 Submit and track Intellipat patent novelty / invalidity / sanitized searches from inside any Claude Code session.
 
-This plugin talks to the **Intellipat MCP Lambda** (`intellipat_mcp` package) via MCP `tools/call` (JSON-RPC 2.0 over HTTP) on an AWS Lambda Function URL, authenticated with a per-user API key. A search is charged to your credit balance — currently **$1.00 USD** (1,000,000 credit micros); the server reports the amount charged in `credits_charged_micros`.
+This plugin talks to the **Intellipat MCP Lambda** (`intellipat_mcp` package) via MCP `tools/call` (JSON-RPC 2.0 over HTTP) on an AWS Lambda Function URL, authenticated with a per-user API key. A search is charged to your credit balance — currently **$1.00 USD** (1,000,000 credit micros), a price configured server-side. The submit response echoes that configured price in `credits_charged_micros`; it is **not** proof that the charge succeeded.
 
 > **Server requirement.** Needs an `intellipat_mcp` deployment that implements the MCP protocol (`intellipat_mcp` `dev` ≥ `c1388f9`). An older deployment answers `tools/call` with HTTP 404 `Method not found: tools/call`; the skills detect this and tell you to upgrade the server instead of retrying. **No host has driven this plugin against a deployed protocol-conformant server yet** — it is built to the contract as landed in that repo and unit-tested there with fakes only.
 
@@ -69,7 +69,7 @@ $HOME/.claude/projects/<project-key>/memory/intellipat_jobs.md
 - search_type: novelty
 - status: pending
 - submitted_at: 2026-05-08T14:30:00Z
-- credits_cost_usd: 1.00   # = credits_charged_micros / 1_000_000 from the submit response
+- credits_cost_usd: 1.00   # the price the server reported (credits_charged_micros / 1_000_000); NOT proof a charge succeeded
 - before_date: 2024-01-15
 - project_context: Considering a freedom-to-operate filing on the LiDAR module
 - last_checked_at: 2026-05-08T14:30:00Z
@@ -82,7 +82,7 @@ $HOME/.claude/projects/<project-key>/memory/intellipat_jobs.md
 - ...
 ```
 
-Status values: `pending`, `processing`, `done`, `error`, `unknown` (stored lowercase; the server may return `PENDING` for a just-submitted job, so compare case-insensitively).
+Status values: `pending`, `processing`, `done`, `error`, `unknown` (stored lowercase; compare case-insensitively as a defensive rule — server builds from before the status-enum fix returned `PENDING`).
 The `status:` line format is load-bearing — the session-start hook greps for it.
 
 ---
@@ -121,12 +121,12 @@ Results arrive as `result.structuredContent` (mirrored as JSON text in `result.c
 | Tool | `structuredContent` |
 |---|---|
 | `get_credits` | `balance_micros` (int), `balance_usd`, `auto_reload_enabled`, `auto_reload_threshold_micros`, `auto_reload_amount_micros`. |
-| `submit_search` | `{job_id, status: "PENDING", credits_charged_micros}`; or, with `isError: true`, `{error: "insufficient_credits", balance}` and **no job created**. |
+| `submit_search` | `{job_id, status: "pending", credits_charged_micros}` (`credits_charged_micros` is the configured price, not proof of a charge); or, with `isError: true`, `{error: "insufficient_credits", balance}` and **no job created**. |
 | `get_job_status` | `{job_id, status, created_at, updated_at, error}` (`pending` / `processing` / `done` / `error`, case-insensitive). |
 | `get_report_summary` | `{job_id, status, title_matter, search_type, novelty_score, invalidity_score, report_summary, prior_art_count, prior_art_top}` (`prior_art_top` ≤ 5 items, passed through as stored). |
 | `get_report` | `{job_id, status, created_at, updated_at, metadata}` — full parsed report metadata. |
 
-Errors: HTTP 401 (`error.data.code` `no_credentials` / `invalid_api_key`) for a missing/bad key; `isError` results with text `Job … not found` / `not owned by caller`; JSON-RPC `-32602` for bad arguments. **`submit_search` has no idempotency key yet — never retry it blindly (a retry is a second job and a second charge).**
+Errors: HTTP 401 (`error.data.code` `no_credentials` / `invalid_api_key`) for a missing/bad key; `isError` results with text `Job … not found` / `not owned by caller`; JSON-RPC `-32602` for bad arguments. **`submit_search` is not safe to retry.** After a lost response the client cannot tell whether a job was created or charged: there is no list-jobs tool, the `job_id` is minted server-side so it is never learned, and the credit balance can stay the same (or even rise, with auto-reload) either way. The skill requires explicit human confirmation before any re-submit.
 
 ---
 

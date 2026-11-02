@@ -29,7 +29,7 @@ curl -s -X POST "$INTELLIPAT_MCP_URL" \
 
 **Reading any response.** Every call returns JSON-RPC. On success the tool's data is in `result.structuredContent` (the same JSON is in `result.content[0].text`). Check `result.isError` first: when `true`, the failure is described by `structuredContent` (e.g. `{"error": "insufficient_credits", ...}`) or, for not-found / not-yours, by the text in `content[0].text`. A top-level `error` (not `result`) is a protocol/auth failure — HTTP 401 means the key is missing, invalid or revoked (`error.data.code` is `no_credentials` or `invalid_api_key`).
 
-`result.structuredContent` is `{job_id, status, created_at, updated_at, error}`; `error` is the failure message (or null). Expected `status` values: `pending`, `processing`, `done`, `error` — compare **case-insensitively** (a just-submitted job may read `PENDING`).
+`result.structuredContent` is `{job_id, status, created_at, updated_at, error}`; `error` is the failure message (or null). Expected `status` values: `pending`, `processing`, `done`, `error` — compare **case-insensitively** as a defensive rule (server builds from before the status-enum fix returned `PENDING`).
 
 ## Step 4 — Branch on status
 
