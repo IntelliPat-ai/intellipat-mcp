@@ -51,7 +51,7 @@ Render a compact table of all checked jobs:
 |---|---|---|---|---|---|
 | abc123… | LiDAR pre-filter | novelty | processing | 2026-05-08 13:00 | 1h 32m |
 
-Truncate `Job ID` to first 8 chars and append `…`.
+Truncate `Job ID` to first 8 chars and append `…`. (Ids are 32-character hex when submitted with an `idempotency_key`, 20 characters otherwise; the truncation is the same for both.)
 
 ## Step 6 — Inline summaries for newly done jobs
 
@@ -73,5 +73,5 @@ For newly transitioned `error` jobs, show the error message instead of a summary
 - This skill is read/update only — it never submits new searches.
 - Skip jobs whose `status` was already `done` or `error` in memory; we only refresh active ones to avoid wasteful API calls.
 - A job whose `status` is `null`, absent, or not one of `pending` / `processing` / `done` / `error` (after lower-casing) is shown as `unknown` in the table with a one-line warning; leave its stored `status:` unchanged, update only `last_checked_at`, and keep it in the active list so it is re-checked next time.
-- If a call returns `result.isError` with text `Job … not found` / `not owned by caller` for a job present in memory, set its stored `status:` to `unknown` **and tell the user, in one line, that it is being dropped from the active list** (Step 2 keeps only `pending` / `processing`, so it will no longer be re-checked, and the session-start reminder will no longer count it). This is deliberately the opposite of an unrecognised status above: here the answer is definite (the job does not exist, or is not yours), so re-checking would only repeat it. The memory row is kept for reference.
+- If a call returns `result.isError` with text `Job … not found` / `not owned by caller` for a job present in memory — unless the row carries an `idempotency_key` and was submitted less than 10 minutes ago, in which case show it as `creating…`, leave `status:` unchanged and update only `last_checked_at` (same 10-minute rule as `/check-job-status`) — set its stored `status:` to `unknown` **and tell the user, in one line, that it is being dropped from the active list** (Step 2 keeps only `pending` / `processing`, so it will no longer be re-checked, and the session-start reminder will no longer count it). This is deliberately the opposite of an unrecognised status above: here the answer is definite (the job does not exist, or is not yours), so re-checking would only repeat it. The memory row is kept for reference.
 - HTTP 401 means the key is bad: stop the whole review (every call will fail) and say so once. HTTP 404 `Method not found: tools/call` means the server is a pre-protocol deployment: stop and say so once.
