@@ -30,7 +30,7 @@ If none are found:
 
 ## Step 3 — Parallel get_job_status
 
-Issue one `get_job_status` MCP call **per active job in parallel** (multiple Bash tool calls in a single response). Example payload per call:
+Issue one `get_job_status` MCP call **per active job in parallel** (multiple Bash tool calls in a single response). Read each result from `result.structuredContent` (`{job_id, status, created_at, updated_at, error}`); a top-level `error` or `result.isError` applies to that job only. Compare `status` **case-insensitively**. Example payload per call:
 
 ```bash
 curl -s -X POST "$INTELLIPAT_MCP_URL" \
@@ -55,11 +55,11 @@ Truncate `Job ID` to first 8 chars and append `…`.
 
 ## Step 6 — Inline summaries for newly done jobs
 
-For every job that just transitioned to `done` in this run, also call `get_report_summary` (parallelisable) and append a short summary section under the table:
+For every job that just transitioned to `done` in this run, also call `get_report_summary` (parallelisable) and append a short summary section under the table (fields: `novelty_score`, `prior_art_count`, `prior_art_top`, `report_summary`):
 
 ```
 ### abc123… — LiDAR pre-filter (novelty) — done
-- noveltyScore: 68
+- novelty_score: 68
 - Top references:
   - US10000000 — "..." (2019-04-12)
   - US10111111 — "..." (2018-08-30)
@@ -72,4 +72,6 @@ For newly transitioned `error` jobs, show the error message instead of a summary
 
 - This skill is read/update only — it never submits new searches.
 - Skip jobs whose `status` was already `done` or `error` in memory; we only refresh active ones to avoid wasteful API calls.
-- If the API returns "job not found" for a job present in memory, mark its status as `unknown` and surface a one-line warning.
+- A job whose `status` is `null`, absent, or not one of `pending` / `processing` / `done` / `error` (after lower-casing) is shown as `unknown` in the table with a one-line warning; leave its stored `status:` unchanged, update only `last_checked_at`, and keep it in the active list so it is re-checked next time.
+- If a call returns `result.isError` with text `Job … not found` / `not owned by caller` for a job present in memory, mark its status as `unknown` and surface a one-line warning.
+- HTTP 401 means the key is bad: stop the whole review (every call will fail) and say so once. HTTP 404 `Method not found: tools/call` means the server is a pre-protocol deployment: stop and say so once.
