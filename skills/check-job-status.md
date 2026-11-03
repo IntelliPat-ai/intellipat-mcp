@@ -79,4 +79,4 @@ When updating a job entry in `intellipat_jobs.md`, edit in place — find the `#
 ## Error handling
 
 - Top-level JSON-RPC `error` / HTTP non-200 (401 = bad key; 404 `Method not found: tools/call` = pre-protocol server): surface the message verbatim. Do not modify memory.
-- `result.isError` with text `Job … not found` or `Job … not owned by caller`: warn the user — the job may have been deleted or the API key may not own it. Do not modify memory.
+- `result.isError` with text `Job … not found` or `Job … not owned by caller`: set the job's stored `status:` to `unknown` **and tell the user, in one line, that it is being dropped from the active list** (only `pending` / `processing` jobs are active, so it will no longer be offered above, re-checked by `/review-pending-jobs`, or counted by the session-start reminder). This is deliberately the opposite of a missing or unrecognised status: here the answer is definite (the job does not exist, or is not yours), so re-checking would only repeat it. The memory row is kept for reference, and `/check-job-status <job_id>` with an explicit id still reaches it.
