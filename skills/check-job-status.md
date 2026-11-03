@@ -14,7 +14,7 @@ Both `INTELLIPAT_MCP_URL` and `INTELLIPAT_MCP_API_KEY` must be set. If either is
 
 ## Step 2 — Resolve job_id
 
-- If the user passed an argument (`/check-job-status <job_id>`), use it directly.
+- If the user passed an argument (`/check-job-status <job_id>`), use it directly. A job id is either a **32-character hex** string (submitted with an `idempotency_key`) or a **20-character** id (submitted without one); accept both and never reject an id for its length.
 - Otherwise, read `$HOME/.claude/projects/<project-key>/memory/intellipat_jobs.md`, list every job with `status: pending` or `status: processing`, and ask the user which one (or "all" → defer to `/review-pending-jobs`).
 - If memory is empty / no pending jobs, tell the user "No active jobs in memory. Pass a job_id explicitly or run /submit-patent-search."
 
@@ -79,4 +79,4 @@ When updating a job entry in `intellipat_jobs.md`, edit in place — find the `#
 ## Error handling
 
 - Top-level JSON-RPC `error` / HTTP non-200 (401 = bad key; 404 `Method not found: tools/call` = pre-protocol server): surface the message verbatim. Do not modify memory.
-- `result.isError` with text `Job … not found` or `Job … not owned by caller`: set the job's stored `status:` to `unknown` **and tell the user, in one line, that it is being dropped from the active list** (only `pending` / `processing` jobs are active, so it will no longer be offered above, re-checked by `/review-pending-jobs`, or counted by the session-start reminder). This is deliberately the opposite of a missing or unrecognised status: here the answer is definite (the job does not exist, or is not yours), so re-checking would only repeat it. The memory row is kept for reference, and `/check-job-status <job_id>` with an explicit id still reaches it.
+- `result.isError` with text `Job … not found` or `Job … not owned by caller`: set the job's stored `status:` to `unknown` **and tell the user, in one line, that it is being dropped from the active list**. One exception: a job submitted within the last 10 minutes whose memory row has an `idempotency_key` may still be being created (its `submit_search` reply said so in a `message`) — for such a row say "not found yet", leave `status:` unchanged, update only `last_checked_at`, and only after 10 minutes of consecutive not-found answers apply the rule above and tell the user to resubmit with a **new** key (`/submit-patent-search`). Otherwise the rule stands (only `pending` / `processing` jobs are active, so it will no longer be offered above, re-checked by `/review-pending-jobs`, or counted by the session-start reminder). This is deliberately the opposite of a missing or unrecognised status: here the answer is definite (the job does not exist, or is not yours), so re-checking would only repeat it. The memory row is kept for reference, and `/check-job-status <job_id>` with an explicit id still reaches it.
