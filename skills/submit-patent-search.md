@@ -97,6 +97,7 @@ curl -s -X POST "$INTELLIPAT_MCP_URL" \
 
 - `idempotency_key` present → **keyed server**: use the retry rules below.
 - absent → **legacy server**: it ignores arguments it does not know. Send no `idempotency_key`, and treat the outcome of a lost response as undeterminable (legacy rule in Error handling).
+- If `tools/list` cannot be read (no response, non-200, or unparsable JSON), treat the server as legacy for this session.
 - `tier` present → `tier` may be sent; absent → omit it.
 
 ### 4b — Generate the idempotency key (keyed server only)
