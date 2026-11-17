@@ -5,5 +5,6 @@
   "author": { "name": "IntelliPat" },
   "homepage": "https://github.com/IntelliPat-ai/intellipat-mcp",
   "repository": "https://github.com/IntelliPat-ai/intellipat-mcp",
+  "license": "MIT",
   "keywords": ["patent", "prior-art", "novelty", "invalidity", "mcp"]
 }

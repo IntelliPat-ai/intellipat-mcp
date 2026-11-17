@@ -24,6 +24,7 @@ SKILLS="$S $C $R"
 # -- 1. layout (documented plugin format)
 for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json .mcp.json hooks/hooks.json; do exists $f; json $f; done
 for f in $SKILLS hooks/session-start.sh; do exists $f; done
+exists LICENSE; must LICENSE '^MIT License$'; must LICENSE '^Copyright \(c\) 2026 IntelliPat$'; must .claude-plugin/plugin.json '"license": "MIT"'
 gone .claude/settings.json; gone skills/submit-patent-search.md; gone skills/check-job-status.md; gone skills/review-pending-jobs.md
 must .claude-plugin/plugin.json '"name": "intellipat-mcp"'
 must .claude-plugin/marketplace.json '"name": "intellipat"'
