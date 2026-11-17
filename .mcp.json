@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "intellipat": {
+      "type": "http",
+      "url": "${INTELLIPAT_MCP_URL:-https://mcp.intellipat.ai/}",
+      "headers": {
+        "X-Api-Key": "${INTELLIPAT_MCP_API_KEY:-}"
+      }
+    }
+  }
+}
