@@ -1,0 +1,9 @@
+{
+  "name": "intellipat-mcp",
+  "version": "2.0.0",
+  "description": "Submit and track IntelliPat patent novelty and invalidity searches from Claude Code, through the IntelliPat MCP server.",
+  "author": { "name": "IntelliPat" },
+  "homepage": "https://github.com/IntelliPat-ai/intellipat-mcp",
+  "repository": "https://github.com/IntelliPat-ai/intellipat-mcp",
+  "keywords": ["patent", "prior-art", "novelty", "invalidity", "mcp"]
+}
