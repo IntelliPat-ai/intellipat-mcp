@@ -30,7 +30,7 @@ Call **`get_job_status`** once per active job, **in parallel** (several tool cal
 For every job, set `last_checked_at: <now>`. Apply the same rules as `/check-job-status`:
 - `done`: `status: done`, `completed_at`.
 - `error` with **`error` null**: failed or retrying, reason not available yet. Keep `status:` unchanged and re-check next time; never resubmit.
-- `error` with an `error` message: a permanent failure. Set `status: error`, `error_message` and `error_class`.
+- `error` with an `error` message: record `error_message`, `error_class` and `first_error_at` (if absent); set `status: error` only if it still reads `error` at least 30 minutes after `first_error_at`. The service can retry after a failure message is recorded.
 - unknown status: leave `status:` unchanged.
 - not found / not yours: the 10-minute grace for keyed jobs, then `status: unknown`.
 

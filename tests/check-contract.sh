@@ -74,7 +74,10 @@ must $S 'the quoted price is set by the tier, not the feature count'
 must $C '`error` is null\*\* \(failed or retrying, reason not available yet\)'
 must $C 'treat|permanent failure'
 must $R 'failed or retrying'
-must $M 'treat it as a permanent failure only when `error` is present'
+must $M 'treat the failure as final only if the job still reads `error` at least 30 minutes after'
+must $C 'do not treat the first sighting as final'
+must $R 'at least 30 minutes after `first_error_at`'
+for f in $C $R $M; do mustnt $f 'a permanent failure only when|this is a permanent failure'; done
 for f in $S $C $R $M; do must $f '1\.5–2\.5 hours'; mustnt $f 'one to three hours|15–45 minutes'; done
 
 # -- 5. idempotency and both id shapes

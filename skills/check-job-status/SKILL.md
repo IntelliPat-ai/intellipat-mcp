@@ -45,7 +45,7 @@ The result is `{job_id, status, created_at, updated_at, error, error_class}`:
 A search can read `error` **while the service is still retrying it**: a later attempt can start minutes after a failure and may succeed.
 
 - **`error` is null** (failed or retrying, reason not available yet): tell the user "The search failed or is being retried; I will check again in a few minutes." Keep `status:` unchanged (`pending` / `processing`) and update only `last_checked_at`. **Do not resubmit.**
-- **`error` is present**: this is a permanent failure. Set `status: error`, `error_message: <error>`, `error_class: <error_class>` and `last_checked_at: <now>`, and show the message (with its reference). For `input_rejected`, suggest reviewing the claim text and features before submitting a new search (with a new key). For `internal`, suggest contacting support with the reference.
+- **`error` is present**: the search failed with that message. Show it (with its reference) and record `error_message: <error>`, `error_class: <error_class>` and `last_checked_at: <now>`. The service can still retry after a failure message has been recorded, so **do not treat the first sighting as final**: record `first_error_at: <now>` and keep `status:` unchanged; set `status: error` only if the job still reads `error` on a check **at least 30 minutes after `first_error_at`**. Once final: for `input_rejected`, suggest reviewing the claim text and features before submitting a new search (with a new key); for `internal`, suggest contacting support with the reference.
 - Never resubmit because of a single `error`. A failed search is not charged.
 
 ### `pending` or `processing`
