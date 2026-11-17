@@ -58,7 +58,7 @@ At the start of a session, the hook prints a one-line reminder if this project h
 - Prices are in credits; `1 credit = 1,000,000 micros`. With the current price book a `standard` search quotes **360 credits** (`screen` 144, `deep` 756). Always rely on the `quoted_micros` the server returns.
 - Every submission carries a client-generated `idempotency_key`, so retrying the same submission returns the original job instead of starting a second one.
 
-A full search usually takes **one to three hours**.
+A real search usually takes **about 1.5–2.5 hours**.
 
 > **Known issue:** the hosted service currently fails searches submitted with a `before_date`. The skills leave the date out until this notice is removed.
 
@@ -72,13 +72,13 @@ The skills call these tools. You can also call them directly.
 |---|---|
 | `get_credits` | `balance_micros` (int), `balance_usd`, `auto_reload_enabled`, `auto_reload_threshold_micros`, `auto_reload_amount_micros`. |
 | `submit_search` | Success: `{job_id, status: "pending", credits_charged_micros: 0, quoted_micros}`. A replayed retry may add `message`. `job_id` is 32-character hex when derived from `idempotency_key`, 20 characters otherwise; accept both. |
-| `get_job_status` | `{job_id, status, created_at, updated_at, error, error_class}`. `status` is `pending` / `processing` / `done` / `error`. On a failure, `error` is a customer-safe message with a reference to quote to support, and `error_class` is `input_rejected` or `internal`. A job can read `error` while the service is still retrying it, so re-check before treating it as final. |
+| `get_job_status` | `{job_id, status, created_at, updated_at, error, error_class}`. `status` is `pending` / `processing` / `done` / `error`. For a failed job, `error` is a customer-safe message ending `(reference <job_id>)` and `error_class` is `input_rejected` or `internal`; both are null otherwise. A job can be in `error` with `error` null while the service is still retrying it: re-check in a few minutes, do not resubmit, and treat it as a permanent failure only when `error` is present. Older servers return the raw failure text and no `error_class`. |
 | `get_report_summary` | `{job_id, status, title_matter, search_type, novelty_score, invalidity_score, report_summary, prior_art_count, prior_art_top}`. |
 | `get_report` | `{job_id, status, created_at, updated_at, metadata}`: the full report. |
 
 **`submit_search` arguments:**
 - `title_matter`, `search_type` (`novelty`, the default, or `invalidity`), `claim_text`;
-- **`primary_features`**: a non-empty list of non-empty strings, **required for a novelty search**. The service does not derive features from `claim_text`;
+- **`primary_features`**: a non-empty list of non-empty strings, **required for a novelty search**. The service does not derive features from `claim_text`. Give the claim's main features, usually 4–7 (3–8 works well). At least one is required; there is no fixed maximum. More features make a search take longer; the quoted price is set by the tier, not the feature count.
 - optionally `secondary_features`, `claims` (invalidity), `before_date` (`YYYY-MM-DD`), `tier` (`screen` / `standard` / `deep`) and `idempotency_key` (1–128 characters).
 
 **Refusals** (an error result; nothing started, nothing charged):

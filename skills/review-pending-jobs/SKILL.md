@@ -29,7 +29,8 @@ Call **`get_job_status`** once per active job, **in parallel** (several tool cal
 
 For every job, set `last_checked_at: <now>`. Apply the same rules as `/check-job-status`:
 - `done`: `status: done`, `completed_at`.
-- `error`: keep `status:` unchanged on the first sighting, record `first_error_at`, `error_message` and `error_class`, and set `status: error` only if it still reads `error` 30+ minutes after `first_error_at`. The service may be retrying it.
+- `error` with **`error` null**: failed or retrying, reason not available yet. Keep `status:` unchanged and re-check next time; never resubmit.
+- `error` with an `error` message: a permanent failure. Set `status: error`, `error_message` and `error_class`.
 - unknown status: leave `status:` unchanged.
 - not found / not yours: the 10-minute grace for keyed jobs, then `status: unknown`.
 
@@ -39,7 +40,7 @@ For every job, set `last_checked_at: <now>`. Apply the same rules as `/check-job
 |---|---|---|---|---|---|
 | abc12345… | LiDAR pre-filter | novelty | processing | 2026-11-17 13:00 | 1h 32m |
 
-Truncate the job id to its first 8 characters and append `…` (the same for both id shapes). Show a failing job as `failed (may retry)` until it is marked `error`. A full search usually takes one to three hours, so long `processing` times are normal.
+Truncate the job id to its first 8 characters and append `…` (the same for both id shapes). Show a job reading `error` with a null `error` as `failed or retrying`. A real search usually takes about 1.5–2.5 hours, so long `processing` times are normal.
 
 ## Step 5: Summaries for newly finished jobs
 

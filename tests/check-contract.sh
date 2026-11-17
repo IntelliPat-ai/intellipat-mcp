@@ -68,6 +68,15 @@ must $C 'while the service is still retrying it'
 must $C 'Never resubmit because of a single `error`'
 must $C '`input_rejected`'; must $C '`internal`'
 
+# -- 4b. features guidance, the error-null rule, real search timing
+must $S 'usually 4–7 \(3–8 works well\)\. At least one is required; there is no fixed maximum'
+must $S 'the quoted price is set by the tier, not the feature count'
+must $C '`error` is null\*\* \(failed or retrying, reason not available yet\)'
+must $C 'treat|permanent failure'
+must $R 'failed or retrying'
+must $M 'treat it as a permanent failure only when `error` is present'
+for f in $S $C $R $M; do must $f '1\.5–2\.5 hours'; mustnt $f 'one to three hours|15–45 minutes'; done
+
 # -- 5. idempotency and both id shapes
 must $S 'IDEMPOTENCY_KEY=\$\(cat /proc/sys/kernel/random/uuid 2>/dev/null \|\| uuidgen \|\| python3'
 must $S 'One fresh key per \*\*logical submission\*\*|one fresh key per \*\*logical submission\*\*'

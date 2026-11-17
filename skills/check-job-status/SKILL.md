@@ -20,7 +20,8 @@ Call **`get_job_status`** with `{"job_id": "<id>"}`. If the tool is unavailable 
 
 The result is `{job_id, status, created_at, updated_at, error, error_class}`:
 - `status` is `pending`, `processing`, `done` or `error`. Compare case-insensitively.
-- On a failure, `error` is a **customer-safe message that includes a reference** (the job id). Show it verbatim; the user quotes the reference when contacting support. Otherwise `error` is null.
+- For a failed job, `error` is a **customer-safe message that includes a reference**, ending `(reference <job_id>)`. Show it verbatim; the user quotes the reference when contacting support. Both `error` and `error_class` are null for a job that has not failed.
+- A job can also read `status: error` with **`error` null**: the service is still retrying it (a later attempt may succeed), or no failure text was recorded. That means **failed or retrying, reason not available yet**.
 - `error_class` is `input_rejected` (the search engine rejected the input), `internal` (a service-side failure), or null. Older servers omit it; treat absent as null.
 
 ## Step 3: Act on the status
@@ -41,17 +42,16 @@ The result is `{job_id, status, created_at, updated_at, error, error_class}`:
 
 ### `error`
 
-A search can read `error` **while the service is still retrying it**: a later attempt can start minutes after a failure and may succeed. So:
+A search can read `error` **while the service is still retrying it**: a later attempt can start minutes after a failure and may succeed.
 
-1. Tell the user: "The search failed; it may be retried automatically. I will check again later." Show `error` (with its reference) and `error_class`.
-2. Update memory: `last_checked_at: <now>`, `error_message: <error>`, `error_class: <error_class>`. Keep `status:` as it was (`pending` / `processing`) on the **first** `error` you see; set `status: error` only if the job still reads `error` on a check **at least 30 minutes later** (record `first_error_at: <now>` to time it).
-3. Never resubmit because of a single `error`. A failed search is not charged.
-4. For `input_rejected`, suggest reviewing the claim text and features before submitting a new search. For `internal`, suggest contacting support with the reference.
+- **`error` is null** (failed or retrying, reason not available yet): tell the user "The search failed or is being retried; I will check again in a few minutes." Keep `status:` unchanged (`pending` / `processing`) and update only `last_checked_at`. **Do not resubmit.**
+- **`error` is present**: this is a permanent failure. Set `status: error`, `error_message: <error>`, `error_class: <error_class>` and `last_checked_at: <now>`, and show the message (with its reference). For `input_rejected`, suggest reviewing the claim text and features before submitting a new search (with a new key). For `internal`, suggest contacting support with the reference.
+- Never resubmit because of a single `error`. A failed search is not charged.
 
 ### `pending` or `processing`
 
 1. Update only `last_checked_at: <now>`.
-2. Show: "Job `<job_id>` is still **<status>**, submitted <elapsed> ago." A full search usually takes one to three hours.
+2. Show: "Job `<job_id>` is still **<status>**, submitted <elapsed> ago." A real search usually takes about 1.5–2.5 hours.
 3. Suggest checking again later, or `/review-pending-jobs` for all jobs.
 
 ### Missing or unrecognised status
