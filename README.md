@@ -19,7 +19,7 @@ In Claude Code:
 
 `intellipat` is this repository's marketplace name. From a shell, the equivalents are `claude plugin marketplace add https://github.com/IntelliPat-ai/intellipat-mcp.git` and `claude plugin install intellipat-mcp@intellipat`.
 
-The short form `/plugin marketplace add IntelliPat-ai/intellipat-mcp` also works, but it clones over SSH, so it needs a GitHub SSH key; the HTTPS URL above works without one.
+The short form `/plugin marketplace add IntelliPat-ai/intellipat-mcp` also works; it may try SSH first, and if that fails on your machine, use the HTTPS URL above.
 
 ## Configure
 
