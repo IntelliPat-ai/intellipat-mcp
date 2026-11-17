@@ -1,0 +1,15 @@
+{
+  "name": "intellipat",
+  "owner": { "name": "IntelliPat" },
+  "description": "IntelliPat plugins for Claude Code.",
+  "plugins": [
+    {
+      "name": "intellipat-mcp",
+      "source": "./",
+      "description": "Submit and track IntelliPat patent novelty and invalidity searches from Claude Code.",
+      "version": "2.0.0",
+      "author": { "name": "IntelliPat" },
+      "category": "productivity"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "description": "Prints a one-line reminder when this project has IntelliPat searches still in progress. Local file read only; no network calls.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}
