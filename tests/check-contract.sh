@@ -95,7 +95,9 @@ must $S '^- idempotency_key:'; must $S '^- tier:'; must $S '^- quoted_credits:'
 must $C 'idempotency_key'
 
 # -- 6. connection, URL, key: tools only, key from the environment only, current domains
-must $M '/plugin marketplace add IntelliPat-ai/intellipat-mcp'
+must $M '^/plugin marketplace add https://github\.com/IntelliPat-ai/intellipat-mcp\.git$'   # primary: works without a GitHub SSH key
+must $M 'it may try SSH first, and if that fails on your machine, use the HTTPS URL above'
+mustnt $M 'needs a GitHub SSH key'
 must $M '/plugin install intellipat-mcp@intellipat'
 must $M 'export INTELLIPAT_MCP_API_KEY='
 must $M 'defaults to \*\*`https://mcp\.intellipat\.ai/`\*\*'

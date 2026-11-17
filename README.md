@@ -13,11 +13,13 @@ The plugin registers the IntelliPat MCP server as the `intellipat` MCP server an
 In Claude Code:
 
 ```
-/plugin marketplace add IntelliPat-ai/intellipat-mcp
+/plugin marketplace add https://github.com/IntelliPat-ai/intellipat-mcp.git
 /plugin install intellipat-mcp@intellipat
 ```
 
-`intellipat` is this repository's marketplace name. From a shell, the equivalents are `claude plugin marketplace add IntelliPat-ai/intellipat-mcp` and `claude plugin install intellipat-mcp@intellipat`.
+`intellipat` is this repository's marketplace name. From a shell, the equivalents are `claude plugin marketplace add https://github.com/IntelliPat-ai/intellipat-mcp.git` and `claude plugin install intellipat-mcp@intellipat`.
+
+The short form `/plugin marketplace add IntelliPat-ai/intellipat-mcp` also works; it may try SSH first, and if that fails on your machine, use the HTTPS URL above.
 
 ## Configure
 
