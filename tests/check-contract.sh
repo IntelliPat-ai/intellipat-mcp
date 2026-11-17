@@ -109,6 +109,15 @@ done
 
 # -- 8. the hook still greps the status vocabulary the skills write
 must hooks/session-start.sh 'status: pending\\\|status: processing'
+# -- 8b. the hook, RUN: silent with no pending jobs (no stray errors), one namespaced line with one
+hook_out() {   # $1 = memory file body; prints the hook's stdout+stderr for a throwaway project
+  local t p k; t=$(mktemp -d); p="$t/proj"; mkdir -p "$p"; k=$(echo "$p" | sed 's|/|-|g' | sed 's|^-||')
+  mkdir -p "$t/home/.claude/projects/$k/memory"; printf '%b' "$1" > "$t/home/.claude/projects/$k/memory/intellipat_jobs.md"
+  (cd "$p" && HOME="$t/home" bash "$OLDPWD/hooks/session-start.sh" 2>&1); rm -rf "$t"; }
+OUT=$(hook_out '# Intellipat Jobs\n\n## a\n- status: done\n')
+if [ -z "$OUT" ]; then ok; else bad "hook with no pending jobs printed: $OUT"; fi
+OUT=$(hook_out '# Intellipat Jobs\n\n## a\n- status: pending\n## b\n- status: processing\n')
+if [ "$OUT" = "[2 Intellipat job(s) in progress — run /intellipat-mcp:review-pending-jobs to check status]" ]; then ok; else bad "hook with 2 pending printed: $OUT"; fi
 
 echo "checks: $((PASS+FAIL))  passed: $PASS  failed: $FAIL"
 [ "$FAIL" -eq 0 ]

@@ -41,11 +41,11 @@ Check the connection with `/mcp` in Claude Code: the `intellipat` server should 
 
 | Command | What it does |
 |---|---|
-| `/submit-patent-search` | Shows your balance, collects the search inputs (proposing the claim's primary features for you to confirm), submits, records the job in project memory, and offers to check on it periodically. |
-| `/check-job-status [job_id] [--full]` | Checks one job. When it is done, shows the summary (and the full report with `--full`). |
-| `/review-pending-jobs` | Checks every pending job in this project in parallel and summarises the ones that finished. |
+| `/intellipat-mcp:submit-patent-search` | Shows your balance, collects the search inputs (proposing the claim's primary features for you to confirm), submits, records the job in project memory, and offers to check on it periodically. |
+| `/intellipat-mcp:check-job-status [job_id] [--full]` | Checks one job. When it is done, shows the summary (and the full report with `--full`). |
+| `/intellipat-mcp:review-pending-jobs` | Checks every pending job in this project in parallel and summarises the ones that finished. |
 
-Claude Code may show these namespaced as `/intellipat-mcp:<skill>`.
+Claude Code loads plugin skills under the plugin's name (`/intellipat-mcp:<skill>`); the skills' own text uses the short names.
 
 At the start of a session, the hook prints a one-line reminder if this project has searches in progress. It only reads a local file and makes no network calls.
 
