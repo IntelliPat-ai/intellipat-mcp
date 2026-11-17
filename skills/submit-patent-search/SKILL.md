@@ -40,7 +40,7 @@ Ask for these fields. Ask several at once where it is natural.
 | `search_type` | enum | `novelty` (default) or `invalidity`. |
 | `claim_text` | string | The claim or invention text (an independent claim is best). |
 | `primary_features` | string[] | **Required for a novelty search.** A non-empty list of non-empty strings, each one feature of the claim. The service does **not** derive features from `claim_text`; a novelty search without them is refused (`invalid_features`). See below. |
-| `before_date` | string | Optional priority cut-off, `YYYY-MM-DD` (a real calendar date). Prior art must predate it. **Known issue:** the hosted service currently fails searches sent with a `before_date`. Leave it out until this notice is removed, and tell the user so if they offer one. |
+| `before_date` | string | Optional priority cut-off, `YYYY-MM-DD` (a real calendar date). Prior art must predate it. |
 
 Optional:
 
@@ -80,7 +80,7 @@ A new search (different claim text, features, date or tier) **must** get a new k
 
 ### 3b: Call `submit_search`
 
-Call **`submit_search`** with `title_matter`, `search_type`, `claim_text`, `primary_features` (and `secondary_features` / `claims` if collected), `tier` and `idempotency_key`. Omit `before_date` while the known issue above stands.
+Call **`submit_search`** with `title_matter`, `search_type`, `claim_text`, `primary_features` (and `secondary_features` / `claims` if collected), `tier` and `idempotency_key`. Include `before_date` if the user gave one.
 
 ### 3c: Read the result
 

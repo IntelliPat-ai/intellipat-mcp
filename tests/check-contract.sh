@@ -60,7 +60,10 @@ for code in invalid_features invalid_before_date invalid_tier invalid_idempotenc
   must $S "\`$code\`"; must $M "\`$code\`"
 done
 for f in $SKILLS $M; do mustnt $f 'sanitized'; done
-must $S 'Known issue:.*before_date'; must $M 'Known issue:.*before_date'
+for f in $S $M; do mustnt $f 'Known issue:.*before_date|Omit `before_date`'; done   # prod carries the date fix
+must $S 'Include `before_date` if the user gave one'
+must $M 'until `https://mcp\.intellipat\.ai/` is live, set `INTELLIPAT_MCP_URL` to the server address you were given with your API key'
+must $M 'shown for information only; they do not admit a search'
 
 # -- 4. job status: error_class, the customer-safe message, retries
 for f in $C $R $M; do must $f 'error_class'; done

@@ -2,6 +2,8 @@
 
 Submit and track IntelliPat patent **novelty** and **invalidity** searches from inside Claude Code.
 
+> **Server address:** until `https://mcp.intellipat.ai/` is live, set `INTELLIPAT_MCP_URL` to the server address you were given with your API key (see [Configure](#configure)).
+
 The plugin registers the IntelliPat MCP server as the `intellipat` MCP server and adds three skills on top of its tools. It also adds a session-start reminder for searches still in progress.
 
 ---
@@ -60,7 +62,6 @@ At the start of a session, the hook prints a one-line reminder if this project h
 
 A real search usually takes **about 1.5–2.5 hours**.
 
-> **Known issue:** the hosted service currently fails searches submitted with a `before_date`. The skills leave the date out until this notice is removed.
 
 ---
 
@@ -70,7 +71,7 @@ The skills call these tools. You can also call them directly.
 
 | Tool | Result |
 |---|---|
-| `get_credits` | `balance_micros` (int), `balance_usd`, `auto_reload_enabled`, `auto_reload_threshold_micros`, `auto_reload_amount_micros`. |
+| `get_credits` | `balance_micros` (int), `balance_usd`, `auto_reload_enabled`, `auto_reload_threshold_micros`, `auto_reload_amount_micros`. The auto-reload fields are shown for information only; they do not admit a search. |
 | `submit_search` | Success: `{job_id, status: "pending", credits_charged_micros: 0, quoted_micros}`. A replayed retry may add `message`. `job_id` is 32-character hex when derived from `idempotency_key`, 20 characters otherwise; accept both. |
 | `get_job_status` | `{job_id, status, created_at, updated_at, error, error_class}`. `status` is `pending` / `processing` / `done` / `error`. For a failed job, `error` is a customer-safe message ending `(reference <job_id>)` and `error_class` is `input_rejected` or `internal`; both are null otherwise. A job can be in `error`, with or without a message, while the service is still retrying it: re-check later, do not resubmit, and treat the failure as final only if the job still reads `error` at least 30 minutes after it was first seen. Older servers return the raw failure text and no `error_class`. |
 | `get_report_summary` | `{job_id, status, title_matter, search_type, novelty_score, invalidity_score, report_summary, prior_art_count, prior_art_top}`. |
